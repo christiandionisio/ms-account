@@ -24,4 +24,14 @@ public class AccountController {
         return service.create(account);
     }
 
+    @PutMapping
+    public Mono<Account> update(@RequestBody Account account) {
+        return service.update(account);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable String id) {
+        service.delete(id);
+    }
+
 }
