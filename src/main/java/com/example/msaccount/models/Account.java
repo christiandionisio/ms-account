@@ -5,6 +5,8 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
+
 @Document(collection = "accounts")
 @Data
 @AllArgsConstructor
@@ -15,7 +17,7 @@ public class Account {
     private String accountNumber;
     private String accountType;
     private String state;
-    private String balance;
+    private BigDecimal balance;
     private String currency;
     private String createdAt;
     private String updatedAt;
