@@ -2,6 +2,7 @@ package com.example.msaccount.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "accounts")
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class Account {
 
+    @Id
     private String accountId;
     private String accountNumber;
     private String accountType;
