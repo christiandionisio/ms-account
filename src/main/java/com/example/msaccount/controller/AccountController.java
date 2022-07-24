@@ -2,6 +2,7 @@ package com.example.msaccount.controller;
 
 import com.example.msaccount.dto.AccountCustomerDTO;
 import com.example.msaccount.dto.ResponseTemplateDTO;
+import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
 import com.example.msaccount.error.PersonalCustomerHasAccountException;
 import com.example.msaccount.models.Account;
 import com.example.msaccount.models.CustomerAccount;
@@ -45,7 +46,8 @@ public class AccountController {
                         .flatMap(response -> Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)))
                 )
                 .onErrorResume(e -> {
-                    if (e instanceof PersonalCustomerHasAccountException) {
+                    if (e instanceof PersonalCustomerHasAccountException ||
+                        e instanceof AccountToBusinessCustomerNotAllowedExecption) {
                         return Mono.just(new ResponseEntity<>(new ResponseTemplateDTO(null,
                                 e.getMessage()), HttpStatus.FORBIDDEN));
                     }
