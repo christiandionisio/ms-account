@@ -1,10 +1,17 @@
 package com.example.msaccount.controller;
 
+import com.example.msaccount.dto.AccountCustomerDTO;
+import com.example.msaccount.dto.ResponseTemplateDTO;
+import com.example.msaccount.error.PersonalCustomerHasAccountException;
 import com.example.msaccount.models.Account;
+import com.example.msaccount.models.CustomerAccount;
 import com.example.msaccount.service.IAccountService;
+import com.example.msaccount.service.ICustomerAccountService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,6 +22,8 @@ public class AccountController {
 
     @Autowired
     private IAccountService service;
+
+    @Autowired ICustomerAccountService customerAccountService;
 
     private static final Logger logger = LogManager.getLogger(AccountController.class);
 
@@ -29,8 +38,21 @@ public class AccountController {
     }
 
     @PostMapping()
-    public Mono<Account> create(@RequestBody Account account) {
-        return service.create(account);
+    public Mono<ResponseEntity<Object>> create(@RequestBody AccountCustomerDTO accountCustomerDTO) {
+        return service.create(accountCustomerDTO)
+                .flatMap(accountCreated -> customerAccountService
+                        .save(new CustomerAccount(null, accountCustomerDTO.getHolder(), accountCreated.getAccountId()))
+                        .flatMap(response -> Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)))
+                )
+                .onErrorResume(e -> {
+                    if (e instanceof PersonalCustomerHasAccountException) {
+                        return Mono.just(new ResponseEntity<>(new ResponseTemplateDTO(null,
+                                e.getMessage()), HttpStatus.FORBIDDEN));
+                    }
+                    return Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+                })
+                .defaultIfEmpty(new ResponseEntity<>(new ResponseTemplateDTO(null,
+                        "Customer not found"), HttpStatus.NOT_FOUND));
     }
 
     @PutMapping
@@ -42,5 +64,14 @@ public class AccountController {
     public void delete(@PathVariable String id) {
         service.delete(id);
     }
+
+    @GetMapping("findByHoldersId/{id}")
+    public Flux<Account> findByHoldersId(@PathVariable String holdersId) {
+        return service.findByHoldersId(holdersId);
+    }
+
+
+
+
 
 }
