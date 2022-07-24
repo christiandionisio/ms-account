@@ -1,6 +1,7 @@
 package com.example.msaccount.service;
 
 import com.example.msaccount.dto.AccountCustomerDTO;
+import com.example.msaccount.dto.AccountWithHoldersDTO;
 import com.example.msaccount.models.Account;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,4 +15,5 @@ public interface IAccountService {
     Mono<Account> update(Account account);
     void delete(String id);
     Flux<Account> findByHoldersId(String holdersId);
+    Mono<AccountWithHoldersDTO> addHolders(String holder, String accountId);
 }

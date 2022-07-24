@@ -1,8 +1,11 @@
 package com.example.msaccount.controller;
 
 import com.example.msaccount.dto.AccountCustomerDTO;
+import com.example.msaccount.dto.HolderAccountDTO;
 import com.example.msaccount.dto.ResponseTemplateDTO;
+import com.example.msaccount.error.AccountNotSupportedForMultipleHoldersException;
 import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
+import com.example.msaccount.error.HolderAlredyExistInAccountEException;
 import com.example.msaccount.error.PersonalCustomerHasAccountException;
 import com.example.msaccount.models.Account;
 import com.example.msaccount.models.CustomerAccount;
@@ -70,6 +73,20 @@ public class AccountController {
     @GetMapping("findByHoldersId/{id}")
     public Flux<Account> findByHoldersId(@PathVariable String holdersId) {
         return service.findByHoldersId(holdersId);
+    }
+
+    @PostMapping("/addHolder")
+    public Mono<ResponseEntity<ResponseTemplateDTO>> addHolderInAccount(@RequestBody HolderAccountDTO holderAccountDTO) {
+        return service.addHolders(holderAccountDTO.getHolderId(), holderAccountDTO.getAccountId())
+                .flatMap(response -> Mono.just(ResponseEntity.ok().body(new ResponseTemplateDTO(response, ""))))
+                .onErrorResume(e -> {
+                    if (e instanceof AccountNotSupportedForMultipleHoldersException ||
+                            e instanceof HolderAlredyExistInAccountEException) {
+                        return Mono.just(new ResponseEntity<>(new ResponseTemplateDTO(null,
+                                e.getMessage()), HttpStatus.FORBIDDEN));
+                    }
+                    return Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+                });
     }
 
 

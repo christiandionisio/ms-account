@@ -1,11 +1,14 @@
 package com.example.msaccount.service;
 
 import com.example.msaccount.dto.AccountCustomerDTO;
+import com.example.msaccount.dto.AccountWithHoldersDTO;
 import com.example.msaccount.enums.AccountTypeEnum;
 import com.example.msaccount.enums.CustomerTypeEnum;
 import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
+import com.example.msaccount.error.HolderAlredyExistInAccountEException;
 import com.example.msaccount.error.PersonalCustomerHasAccountException;
 import com.example.msaccount.models.Account;
+import com.example.msaccount.models.CustomerAccount;
 import com.example.msaccount.repo.AccountRepository;
 import com.example.msaccount.utils.AccountBusinessRulesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +37,9 @@ public class AccountServiceImpl implements IAccountService {
 
     @Override
     public Mono<Account> create(AccountCustomerDTO accountCustomerDTO) {
+        accountCustomerDTO.getAccount().setCustomerOwnerId(accountCustomerDTO.getHolder());
         return AccountBusinessRulesUtil.findCustomerById(accountCustomerDTO.getHolder()).flatMap(customer -> {
+            accountCustomerDTO.getAccount().setCustomerOwnerType(customer.getCustomerType());
             // Valida el tipo de cliente
             if (customer.getCustomerType().equalsIgnoreCase(CustomerTypeEnum.BUSINESS.getValue())) {
                 // CLIENTE EMPRESARIAL
@@ -78,6 +83,24 @@ public class AccountServiceImpl implements IAccountService {
     @Override
     public Flux<Account> findByHoldersId(String holdersId) {
         return null;
+    }
+
+    @Override
+    public Mono<AccountWithHoldersDTO> addHolders(String holderId, String accountId) {
+        return repository.findById(accountId)
+                .flatMap(AccountBusinessRulesUtil::validateSupportOfAccount)
+                .flatMap(accountWithHoldersDTO -> {
+                    if (accountWithHoldersDTO.getHolders().contains(holderId)) {
+                        return Mono.error(new HolderAlredyExistInAccountEException());
+                    }
+
+                    return customerAccountService.save(new CustomerAccount(null, holderId,
+                                    accountWithHoldersDTO.getAccount().getAccountId()))
+                            .flatMap(responseBD -> {
+                               accountWithHoldersDTO.getHolders().add(responseBD.getIdCustomer());
+                                return Mono.just(accountWithHoldersDTO);
+                            });
+                });
     }
 
 

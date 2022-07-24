@@ -21,4 +21,6 @@ public class Account {
     private String currency;
     private String createdAt;
     private String updatedAt;
+    private String customerOwnerType;
+    private String customerOwnerId;
 }
