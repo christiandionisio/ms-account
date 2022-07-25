@@ -2,6 +2,8 @@ package com.example.msaccount.service;
 
 import com.example.msaccount.dto.AccountCustomerDTO;
 import com.example.msaccount.dto.AccountWithHoldersDTO;
+import com.example.msaccount.dto.BalanceDto;
+import com.example.msaccount.dto.ResponseTemplateDTO;
 import com.example.msaccount.enums.AccountTypeEnum;
 import com.example.msaccount.enums.CustomerTypeEnum;
 import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
@@ -12,6 +14,8 @@ import com.example.msaccount.models.CustomerAccount;
 import com.example.msaccount.repo.AccountRepository;
 import com.example.msaccount.utils.AccountBusinessRulesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -103,5 +107,13 @@ public class AccountServiceImpl implements IAccountService {
                 });
     }
 
-
+    @Override
+    public Mono<BalanceDto> getBalance(String accountId) {
+        return repository.findById(accountId)
+                .flatMap(account -> {
+                    BalanceDto balanceDto = new BalanceDto(account.getBalance(), account.getCurrency());
+                    Mono<BalanceDto> balanceDtoMono = Mono.just(balanceDto);
+                    return balanceDtoMono;
+                });
+    }
 }

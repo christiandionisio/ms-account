@@ -93,4 +93,15 @@ public class AccountController {
         Mono<Account> account = service.findById(id);
         return account;
     }
+
+    @GetMapping("/balance/{accountId}")
+    public Mono<ResponseEntity<Object>> getBalanceAvailable(@PathVariable String accountId){
+        return service.getBalance(accountId)
+                .flatMap(balance -> {
+                    ResponseEntity<Object> response = ResponseEntity.ok().body(balance);
+                    return Mono.just(response);
+                })
+                .defaultIfEmpty(new ResponseEntity<>(new ResponseTemplateDTO(HttpStatus.NOT_FOUND,
+                        "Account not found"), HttpStatus.NOT_FOUND));
+    }
 }
