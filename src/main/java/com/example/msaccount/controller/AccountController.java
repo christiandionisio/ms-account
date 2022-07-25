@@ -51,9 +51,11 @@ public class AccountController {
                 .onErrorResume(e -> {
                     if (e instanceof PersonalCustomerHasAccountException ||
                         e instanceof AccountToBusinessCustomerNotAllowedExecption) {
+                        logger.error(e.getMessage());
                         return Mono.just(new ResponseEntity<>(new ResponseTemplateDTO(null,
                                 e.getMessage()), HttpStatus.FORBIDDEN));
                     }
+                    logger.error(e.getMessage());
                     return Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
                 })
                 .defaultIfEmpty(new ResponseEntity<>(new ResponseTemplateDTO(null,
@@ -82,9 +84,11 @@ public class AccountController {
                 .onErrorResume(e -> {
                     if (e instanceof AccountNotSupportedForMultipleHoldersException ||
                             e instanceof HolderAlredyExistInAccountEException) {
+                        logger.error(e.getMessage());
                         return Mono.just(new ResponseEntity<>(new ResponseTemplateDTO(null,
                                 e.getMessage()), HttpStatus.FORBIDDEN));
                     }
+                    logger.error(e.getMessage());
                     return Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
                 });
     }
