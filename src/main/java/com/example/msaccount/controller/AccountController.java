@@ -32,13 +32,8 @@ public class AccountController {
     private static final Logger logger = LogManager.getLogger(AccountController.class);
 
     @GetMapping()
-    public Flux<Account> findAll() {
-        logger.debug("Debugging log");
-        logger.info("Info log");
-        logger.warn("Hey, This is a warning!");
-        logger.error("Oops! We have an Error. OK");
-        logger.fatal("Damn! Fatal error. Please fix me.");
-        return service.findAll();
+    public Mono<ResponseEntity<Flux<Account>>> findAll() {
+        return Mono.just(new ResponseEntity<>(service.findAll(), HttpStatus.OK));
     }
 
     @PostMapping()
@@ -63,13 +58,18 @@ public class AccountController {
     }
 
     @PutMapping
-    public Mono<Account> update(@RequestBody Account account) {
-        return service.update(account);
+    public Mono<ResponseEntity<Mono<Account>>> update(@RequestBody Account account) {
+        return service.findById(account.getAccountId())
+                .flatMap(accountFound ->
+                        Mono.just(new ResponseEntity<>(service.update(account), HttpStatus.OK)))
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable String id) {
-        service.delete(id);
+    public Mono<ResponseEntity<Mono<Void>>> delete(@PathVariable String id) {
+        return service.findById(id)
+                .flatMap(account -> Mono.just(new ResponseEntity<>(service.delete(id), HttpStatus.NO_CONTENT)))
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("findByHoldersId/{id}")

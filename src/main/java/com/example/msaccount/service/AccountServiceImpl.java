@@ -80,8 +80,8 @@ public class AccountServiceImpl implements IAccountService {
     }
 
     @Override
-    public void delete(String id) {
-        repository.deleteById(id);
+    public Mono<Void> delete(String id) {
+        return repository.deleteById(id);
     }
 
     @Override
