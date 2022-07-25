@@ -88,9 +88,9 @@ public class AccountController {
                     return Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
                 });
     }
-
-
-
-
-
+    @GetMapping("/{id}")
+    public Mono<Account> read(@PathVariable String id){
+        Mono<Account> account = service.findById(id);
+        return account;
+    }
 }
