@@ -7,8 +7,6 @@ import com.example.msaccount.models.Account;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 public interface IAccountService {
     Flux<Account> findAll();
     Mono<Account> findById(String id);
