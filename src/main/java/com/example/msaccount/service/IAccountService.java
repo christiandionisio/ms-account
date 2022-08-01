@@ -14,7 +14,7 @@ public interface IAccountService {
     Mono<Account> findById(String id);
     Mono<Account> create(AccountCustomerDTO account);
     Mono<Account> update(Account account);
-    void delete(String id);
+    Mono<Void> delete(String id);
     Flux<Account> findByHoldersId(String holdersId);
     Mono<AccountWithHoldersDTO> addHolders(String holder, String accountId);
 
