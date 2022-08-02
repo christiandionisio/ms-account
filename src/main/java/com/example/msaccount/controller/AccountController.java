@@ -107,4 +107,9 @@ public class AccountController {
                 .defaultIfEmpty(new ResponseEntity<>(new ResponseTemplateDTO(HttpStatus.NOT_FOUND,
                         "Account not found"), HttpStatus.NOT_FOUND));
     }
+
+    @GetMapping("/findByCustomerOwnerId/{customerOwnerId}")
+    public Mono<ResponseEntity<Flux<Account>>> findByCustomerOwnerId(@PathVariable String customerOwnerId){
+        return Mono.just(new ResponseEntity<>(service.findByCustomerOwnerId(customerOwnerId), HttpStatus.OK));
+    }
 }

@@ -17,5 +17,6 @@ public interface IAccountService {
     Mono<AccountWithHoldersDTO> addHolders(String holder, String accountId);
 
     Mono<BalanceDto> getBalance(String accountId);
+    Flux<Account> findByCustomerOwnerId(String customerOwnerId);
 
 }

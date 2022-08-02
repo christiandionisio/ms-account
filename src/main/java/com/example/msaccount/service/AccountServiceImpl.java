@@ -150,4 +150,9 @@ public class AccountServiceImpl implements IAccountService {
                     return balanceDtoMono;
                 });
     }
+
+    @Override
+    public Flux<Account> findByCustomerOwnerId(String customerOwnerId) {
+        return repository.findByCustomerOwnerId(customerOwnerId);
+    }
 }
