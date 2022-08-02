@@ -3,6 +3,7 @@ package com.example.msaccount.controller;
 import com.example.msaccount.models.AccountConfiguration;
 import com.example.msaccount.service.IAccountConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,5 +39,12 @@ public class AccountConfigurationController {
     public Mono<Void> delete(String id) {
         return service.delete(id);
     }
+
+    @GetMapping("/searchByAccountTypeAndName")
+    public Mono<AccountConfiguration> findByAccountTypeAndName(@RequestParam("accountType") String accountType,
+                                                               @RequestParam("name") String name) {
+        return service.findByAccountTypeAndName(accountType, name);
+    }
+
 
 }

@@ -11,5 +11,6 @@ public interface IAccountConfigurationService {
     Mono<AccountConfiguration> create(AccountConfiguration account);
     Mono<AccountConfiguration> update(AccountConfiguration account);
     Mono<Void> delete(String id);
+    Mono<AccountConfiguration> findByAccountTypeAndName(String accountType, String name);
 
 }

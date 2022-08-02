@@ -37,4 +37,9 @@ public class AccountConfigurationServiceImpl implements IAccountConfigurationSer
     public Mono<Void> delete(String id) {
         return repository.deleteById(id);
     }
+
+    @Override
+    public Mono<AccountConfiguration> findByAccountTypeAndName(String accountType, String name) {
+        return repository.findByAccountTypeAndName(accountType, name);
+    }
 }
