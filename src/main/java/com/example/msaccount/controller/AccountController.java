@@ -43,7 +43,8 @@ public class AccountController {
                 .onErrorResume(e -> {
                     if (e instanceof PersonalCustomerHasAccountException ||
                         e instanceof AccountToBusinessCustomerNotAllowedExecption ||
-                            e instanceof AccountInvalidBalanceException) {
+                            e instanceof AccountInvalidBalanceException ||
+                        e instanceof AccountCustomerWithoutCreditCardRequiredException) {
                         logger.error(e.getMessage());
                         return Mono.just(new ResponseEntity<>(new ResponseTemplateDTO(null,
                                 e.getMessage()), HttpStatus.FORBIDDEN));

@@ -13,4 +13,5 @@ public class Customer {
     private String documentNumber;
     private Date birthDate;
     private String customerType;
+    private String category;
 }

@@ -36,4 +36,14 @@ public class AccountBusinessRulesUtil {
         }
     }
 
+    public static Mono<Long> getQuantityOfCreditCardsByCustomer(String customerId) {
+        return WebClient.create().get()
+                .uri("http://localhost:9084/credit-cards/count/" + customerId)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, response ->
+                        Mono.error(new Exception(customerId))
+                )
+                .bodyToMono(Long.class);
+    }
 }
