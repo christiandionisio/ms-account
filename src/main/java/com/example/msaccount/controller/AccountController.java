@@ -3,10 +3,7 @@ package com.example.msaccount.controller;
 import com.example.msaccount.dto.AccountCustomerDTO;
 import com.example.msaccount.dto.HolderAccountDTO;
 import com.example.msaccount.dto.ResponseTemplateDTO;
-import com.example.msaccount.error.AccountNotSupportedForMultipleHoldersException;
-import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
-import com.example.msaccount.error.HolderAlredyExistInAccountEException;
-import com.example.msaccount.error.PersonalCustomerHasAccountException;
+import com.example.msaccount.error.*;
 import com.example.msaccount.models.Account;
 import com.example.msaccount.models.CustomerAccount;
 import com.example.msaccount.service.IAccountService;
@@ -41,11 +38,12 @@ public class AccountController {
         return service.create(accountCustomerDTO)
                 .flatMap(accountCreated -> customerAccountService
                         .save(new CustomerAccount(null, accountCustomerDTO.getHolder(), accountCreated.getAccountId()))
-                        .flatMap(response -> Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)))
+                        .flatMap(response -> Mono.just(new ResponseEntity<>(HttpStatus.OK)))
                 )
                 .onErrorResume(e -> {
                     if (e instanceof PersonalCustomerHasAccountException ||
-                        e instanceof AccountToBusinessCustomerNotAllowedExecption) {
+                        e instanceof AccountToBusinessCustomerNotAllowedExecption ||
+                            e instanceof AccountInvalidBalanceException) {
                         logger.error(e.getMessage());
                         return Mono.just(new ResponseEntity<>(new ResponseTemplateDTO(null,
                                 e.getMessage()), HttpStatus.FORBIDDEN));

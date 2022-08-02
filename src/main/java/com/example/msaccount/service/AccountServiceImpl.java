@@ -6,6 +6,7 @@ import com.example.msaccount.dto.BalanceDto;
 import com.example.msaccount.dto.ResponseTemplateDTO;
 import com.example.msaccount.enums.AccountTypeEnum;
 import com.example.msaccount.enums.CustomerTypeEnum;
+import com.example.msaccount.error.AccountInvalidBalanceException;
 import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
 import com.example.msaccount.error.HolderAlredyExistInAccountEException;
 import com.example.msaccount.error.PersonalCustomerHasAccountException;
@@ -19,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
 
 @Service
 public class AccountServiceImpl implements IAccountService {
@@ -43,6 +46,11 @@ public class AccountServiceImpl implements IAccountService {
     public Mono<Account> create(AccountCustomerDTO accountCustomerDTO) {
         accountCustomerDTO.getAccount().setCustomerOwnerId(accountCustomerDTO.getHolder());
         return AccountBusinessRulesUtil.findCustomerById(accountCustomerDTO.getHolder()).flatMap(customer -> {
+
+            if (accountCustomerDTO.getAccount().getBalance().compareTo(BigDecimal.ZERO) == -1) {
+                return Mono.error(new AccountInvalidBalanceException());
+            }
+
             accountCustomerDTO.getAccount().setCustomerOwnerType(customer.getCustomerType());
             // Valida el tipo de cliente
             if (customer.getCustomerType().equalsIgnoreCase(CustomerTypeEnum.BUSINESS.getValue())) {
