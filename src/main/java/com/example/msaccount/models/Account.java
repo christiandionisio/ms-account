@@ -16,15 +16,15 @@ import java.math.BigDecimal;
 @Builder
 public class Account {
 
-    @Id
-    private String accountId;
-    private String accountNumber;
-    private String accountType;
-    private String state;
-    private BigDecimal balance;
-    private String currency;
-    private String createdAt;
-    private String updatedAt;
-    private String customerOwnerType;
-    private String customerOwnerId;
+  @Id
+  private String accountId;
+  private String accountNumber;
+  private String accountType;
+  private String state;
+  private BigDecimal balance;
+  private String currency;
+  private String createdAt;
+  private String updatedAt;
+  private String customerOwnerType;
+  private String customerOwnerId;
 }

@@ -6,11 +6,16 @@ import reactor.core.publisher.Mono;
 
 public interface IAccountConfigurationService {
 
-    Flux<AccountConfiguration> findAll();
-    Mono<AccountConfiguration> findById(String id);
-    Mono<AccountConfiguration> create(AccountConfiguration account);
-    Mono<AccountConfiguration> update(AccountConfiguration account);
-    Mono<Void> delete(String id);
-    Mono<AccountConfiguration> findByAccountTypeAndName(String accountType, String name);
+  Flux<AccountConfiguration> findAll();
+
+  Mono<AccountConfiguration> findById(String id);
+
+  Mono<AccountConfiguration> create(AccountConfiguration account);
+
+  Mono<AccountConfiguration> update(AccountConfiguration account);
+
+  Mono<Void> delete(String id);
+
+  Mono<AccountConfiguration> findByAccountTypeAndName(String accountType, String name);
 
 }

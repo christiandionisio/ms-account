@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ResponseTemplateDTO {
+public class ResponseTemplateDto {
 
-    private Object response;
-    private String errorMessage;
+  private Object response;
+  private String errorMessage;
 
 }

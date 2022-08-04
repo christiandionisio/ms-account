@@ -8,18 +8,18 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
-public class CustomerAccountServiceImpl implements ICustomerAccountService{
+public class CustomerAccountServiceImpl implements ICustomerAccountService {
 
-    @Autowired
-    private CustomerAccountRepository repository;
+  @Autowired
+  private CustomerAccountRepository repository;
 
-    @Override
-    public Mono<CustomerAccount> save(CustomerAccount customerAccount) {
-        return repository.save(customerAccount);
-    }
+  @Override
+  public Mono<CustomerAccount> save(CustomerAccount customerAccount) {
+    return repository.save(customerAccount);
+  }
 
-    @Override
-    public Flux<CustomerAccount> findByIdCustomer(String idCustomer) {
-        return repository.findByIdCustomer(idCustomer);
-    }
+  @Override
+  public Flux<CustomerAccount> findByIdCustomer(String idCustomer) {
+    return repository.findByIdCustomer(idCustomer);
+  }
 }

@@ -13,8 +13,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Builder
 public class CustomerAccount {
-    @Id
-    String id;
-    String idCustomer;
-    String idAccount;
+  @Id
+  String id;
+  String idCustomer;
+  String idAccount;
 }

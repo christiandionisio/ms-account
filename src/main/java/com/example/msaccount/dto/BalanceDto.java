@@ -8,6 +8,6 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 public class BalanceDto {
-    private BigDecimal availableBalance;
-    private String currency;
+  private BigDecimal availableBalance;
+  private String currency;
 }

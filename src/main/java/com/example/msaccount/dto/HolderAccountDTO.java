@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class HolderAccountDTO {
-    private String holderId;
-    private String accountId;
+public class HolderAccountDto {
+  private String holderId;
+  private String accountId;
 }

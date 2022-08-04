@@ -8,9 +8,9 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class AccountWithHoldersDTO {
+public class AccountWithHoldersDto {
 
-    private Account account;
-    private List<String> holders;
+  private Account account;
+  private List<String> holders;
 
 }

@@ -14,10 +14,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 public class AccountConfiguration {
 
-    @Id
-    private String id;
-    private String name;
-    private Integer value;
-    private String accountType;
+  @Id
+  private String id;
+  private String name;
+  private Integer value;
+  private String accountType;
 
 }

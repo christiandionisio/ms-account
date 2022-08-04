@@ -5,6 +5,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ICustomerAccountService {
-    Mono<CustomerAccount> save(CustomerAccount customerAccount);
-    Flux<CustomerAccount> findByIdCustomer(String idCustomer);
+  Mono<CustomerAccount> save(CustomerAccount customerAccount);
+
+  Flux<CustomerAccount> findByIdCustomer(String idCustomer);
 }
