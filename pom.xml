@@ -16,6 +16,9 @@
     <properties>
         <java.version>1.8</java.version>
         <spring-cloud.version>2021.0.3</spring-cloud.version>
+        <sonar.cpd.exclusions>
+            com/example/msaccount/dto/**
+        </sonar.cpd.exclusions>
     </properties>
     <dependencies>
         <dependency>
