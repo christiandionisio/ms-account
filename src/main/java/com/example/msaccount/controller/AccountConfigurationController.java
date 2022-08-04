@@ -1,9 +1,11 @@
 package com.example.msaccount.controller;
 
+import com.example.msaccount.dto.AccountConfigurationDTO;
 import com.example.msaccount.models.AccountConfiguration;
 import com.example.msaccount.service.IAccountConfigurationService;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,6 +16,9 @@ public class AccountConfigurationController {
 
     @Autowired
     private IAccountConfigurationService service;
+
+    private ModelMapper modelMapper = new ModelMapper();
+
 
     @GetMapping
     public Flux<AccountConfiguration> findAll() {
@@ -26,13 +31,15 @@ public class AccountConfigurationController {
     }
 
     @PostMapping
-    public Mono<AccountConfiguration> create(@RequestBody AccountConfiguration account) {
-        return service.create(account);
+    public Mono<AccountConfiguration> create(@RequestBody AccountConfigurationDTO accountConfigurationDTO) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return service.create(modelMapper.map(accountConfigurationDTO, AccountConfiguration.class));
     }
 
     @PutMapping()
-    public Mono<AccountConfiguration> update(@RequestBody AccountConfiguration account) {
-        return service.update(account);
+    public Mono<AccountConfiguration> update(@RequestBody AccountConfigurationDTO accountConfigurationDTO) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return service.update(modelMapper.map(accountConfigurationDTO, AccountConfiguration.class));
     }
 
     @DeleteMapping("/{id}")

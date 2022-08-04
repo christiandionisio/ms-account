@@ -1,22 +1,11 @@
-package com.example.msaccount.models;
+package com.example.msaccount.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 
-@Document(collection = "accounts")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class Account {
-
-    @Id
+public class AccountDTO {
     private String accountId;
     private String accountNumber;
     private String accountType;

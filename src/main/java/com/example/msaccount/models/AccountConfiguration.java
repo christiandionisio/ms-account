@@ -1,13 +1,17 @@
 package com.example.msaccount.models;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "account_configuration")
 @Data
 @AllArgsConstructor
-@Document(collection = "account_configuration")
+@NoArgsConstructor
+@Builder
 public class AccountConfiguration {
 
     @Id

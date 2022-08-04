@@ -1,6 +1,7 @@
 package com.example.msaccount.controller;
 
 import com.example.msaccount.dto.AccountCustomerDTO;
+import com.example.msaccount.dto.AccountDTO;
 import com.example.msaccount.dto.HolderAccountDTO;
 import com.example.msaccount.dto.ResponseTemplateDTO;
 import com.example.msaccount.error.*;
@@ -10,6 +11,8 @@ import com.example.msaccount.service.IAccountService;
 import com.example.msaccount.service.ICustomerAccountService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,8 @@ public class AccountController {
     @Autowired ICustomerAccountService customerAccountService;
 
     private static final Logger logger = LogManager.getLogger(AccountController.class);
+
+    private ModelMapper modelMapper = new ModelMapper();
 
     @GetMapping()
     public Mono<ResponseEntity<Flux<Account>>> findAll() {
@@ -57,10 +62,11 @@ public class AccountController {
     }
 
     @PutMapping
-    public Mono<ResponseEntity<Mono<Account>>> update(@RequestBody Account account) {
-        return service.findById(account.getAccountId())
+    public Mono<ResponseEntity<Mono<Account>>> update(@RequestBody AccountDTO accountDTO) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return service.findById(accountDTO.getAccountId())
                 .flatMap(accountFound ->
-                        Mono.just(new ResponseEntity<>(service.update(account), HttpStatus.OK)))
+                        Mono.just(new ResponseEntity<>(service.update(modelMapper.map(accountDTO, Account.class)), HttpStatus.OK)))
                 .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
@@ -93,8 +99,7 @@ public class AccountController {
     }
     @GetMapping("/{id}")
     public Mono<Account> read(@PathVariable String id){
-        Mono<Account> account = service.findById(id);
-        return account;
+        return service.findById(id);
     }
 
     @GetMapping("/balance/{accountId}")
