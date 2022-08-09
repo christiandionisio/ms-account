@@ -166,6 +166,32 @@ class AccountServiceImplTest {
         }
     }
 
+    @Test
+    void updateAccount() {
+        Mockito.when(repository.save(Mockito.any(Account.class)))
+                .thenReturn(Mono.just(getAccountTest()));
+        Mono<Account> response = accountService.update(getAccountTest());
+        StepVerifier.create(response)
+                .expectNext(getAccountTest())
+                .verifyComplete();
+    }
+
+    @Test
+    void deleteAccount() {
+        Mockito.when(repository.deleteById(Mockito.anyString()))
+                .thenReturn(Mono.empty());
+        Mono<Void> response = accountService.delete("1");
+        StepVerifier.create(response)
+                .verifyComplete();
+    }
+
+    @Test
+    void findByHoldersId() {
+        Flux<Account> response = accountService.findByHoldersId("1");
+        StepVerifier.create(response)
+                .verifyComplete();
+    }
+
     private Customer getCustomerBusiness() {
         Customer customer = new Customer();
         customer.setCustomerId("1");
