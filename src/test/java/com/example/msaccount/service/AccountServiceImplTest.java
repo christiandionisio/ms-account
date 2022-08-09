@@ -3,8 +3,10 @@ package com.example.msaccount.service;
 import com.example.msaccount.dto.AccountCustomerDto;
 import com.example.msaccount.error.AccountInvalidBalanceException;
 import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
+import com.example.msaccount.error.PersonalCustomerHasAccountException;
 import com.example.msaccount.models.Account;
 import com.example.msaccount.models.Customer;
+import com.example.msaccount.models.CustomerAccount;
 import com.example.msaccount.repo.AccountRepository;
 import com.example.msaccount.utils.AccountBusinessRulesUtil;
 import org.junit.jupiter.api.Test;
@@ -18,12 +20,17 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootTest
 class AccountServiceImplTest {
 
     @MockBean
     private AccountRepository repository;
+
+    @MockBean
+    private ICustomerAccountService customerAccountService;
 
     @Autowired
     private AccountServiceImpl accountService;
@@ -112,10 +119,72 @@ class AccountServiceImplTest {
         }
     }
 
+
+    @Test
+    void createAccountPersonalCustomerAndGeneralCategoryWithPersonalCustomerHasAccountException() {
+
+        try (MockedStatic<AccountBusinessRulesUtil> mockedStatic = Mockito.mockStatic(AccountBusinessRulesUtil.class)) {
+            mockedStatic.when(() -> AccountBusinessRulesUtil.findCustomerById(Mockito.anyString()))
+                    .thenReturn(Mono.just(getCustomerPersonal()));
+
+            List<CustomerAccount> customerAccounts = new ArrayList<>();
+            customerAccounts.add(new CustomerAccount("1", "2", "3"));
+
+            Mockito.when(customerAccountService.findByIdCustomer(Mockito.anyString()))
+                    .thenReturn(Flux.fromIterable(customerAccounts));
+
+            Mockito.when(repository.findByAccountIdAndAccountType(Mockito.anyString(), Mockito.anyString()))
+                    .thenReturn(Mono.just(getAccountTest()));
+
+            Mono<Account> response = accountService.create(getAccountCustomerDtoCurrentAccountTest());
+            StepVerifier.create(response)
+                    .expectError(PersonalCustomerHasAccountException.class)
+                    .verify();
+        }
+    }
+
+    @Test
+    void createAccountPersonalCustomerAndVipCategory() {
+
+        try (MockedStatic<AccountBusinessRulesUtil> mockedStatic = Mockito.mockStatic(AccountBusinessRulesUtil.class)) {
+            mockedStatic.when(() -> AccountBusinessRulesUtil.findCustomerById(Mockito.anyString()))
+                    .thenReturn(Mono.just(getCustomerPersonalVipCategory()));
+
+            Mockito.when(customerAccountService.findByIdCustomer(Mockito.anyString()))
+                    .thenReturn(Flux.empty());
+
+            mockedStatic.when(() -> AccountBusinessRulesUtil.getQuantityOfCreditCardsByCustomer(Mockito.anyString()))
+                    .thenReturn(Mono.just(Long.valueOf(10)));
+
+            Mockito.when(repository.save(Mockito.any(Account.class)))
+                    .thenReturn(Mono.just(getAccountTest()));
+
+            Mono<Account> response = accountService.create(getAccountCustomerDtoCurrentAccountTest());
+            StepVerifier.create(response)
+                    .expectNext(getAccountTest())
+                    .verifyComplete();
+        }
+    }
+
     private Customer getCustomerBusiness() {
         Customer customer = new Customer();
         customer.setCustomerId("1");
         customer.setCustomerType("BUSINESS");
+        return customer;
+    }
+
+    private Customer getCustomerPersonal() {
+        Customer customer = new Customer();
+        customer.setCustomerId("1");
+        customer.setCustomerType("PERSONAL");
+        return customer;
+    }
+
+    private Customer getCustomerPersonalVipCategory() {
+        Customer customer = new Customer();
+        customer.setCustomerId("1");
+        customer.setCustomerType("PERSONAL");
+        customer.setCategory("VIP");
         return customer;
     }
 
