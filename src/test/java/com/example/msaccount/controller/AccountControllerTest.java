@@ -1,6 +1,7 @@
 package com.example.msaccount.controller;
 
 import com.example.msaccount.dto.AccountCustomerDto;
+import com.example.msaccount.dto.AccountDto;
 import com.example.msaccount.error.AccountCustomerWithoutCreditCardRequiredException;
 import com.example.msaccount.error.AccountInvalidBalanceException;
 import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
@@ -109,6 +110,50 @@ class AccountControllerTest {
                 .body(Mono.just(new AccountCustomerDto()), AccountCustomerDto.class)
                 .exchange()
                 .expectStatus().isForbidden();
+    }
+
+    @Test
+    @DisplayName("Create account with GeneralException")
+    void createWithGeneralException() {
+        Mockito.when(accountService.create(Mockito.any(AccountCustomerDto.class)))
+                .thenReturn(Mono.error(new Exception("GeneralException TEST")));
+
+        webClient.post().uri("/accounts")
+                .body(Mono.just(new AccountCustomerDto()), AccountCustomerDto.class)
+                .exchange()
+                .expectStatus().is5xxServerError();
+    }
+
+    @Test
+    @DisplayName("Update account")
+    void update() {
+        Mockito.when(accountService.findById(Mockito.anyString()))
+                .thenReturn(Mono.just(getAccountTest()));
+        Mockito.when(accountService.update(Mockito.any(Account.class)))
+                .thenReturn(Mono.just(getAccountTest()));
+
+        AccountDto accountDto = new AccountDto();
+        accountDto.setAccountId("1");
+
+        webClient.put().uri("/accounts")
+                .body(Mono.just(accountDto), AccountDto.class)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Account.class)
+                .isEqualTo(getAccountTest());
+    }
+
+    @Test
+    @DisplayName("Delete account")
+    void delete() {
+        Mockito.when(accountService.findById(Mockito.anyString()))
+                .thenReturn(Mono.just(getAccountTest()));
+        Mockito.when(accountService.delete(Mockito.anyString()))
+                .thenReturn(Mono.empty());
+
+        webClient.delete().uri("/accounts/1")
+                .exchange()
+                .expectStatus().isNoContent();
     }
 
     private Account getAccountTest() {
