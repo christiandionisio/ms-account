@@ -156,6 +156,22 @@ class AccountControllerTest {
                 .expectStatus().isNoContent();
     }
 
+    @Test
+    @DisplayName("Find by holder ID")
+    void findByHolderId() {
+        List<Account> accountsMock = new ArrayList<>();
+        accountsMock.add(getAccountTest());
+
+        Mockito.when(accountService.findByHoldersId(Mockito.anyString()))
+                .thenReturn(Flux.fromIterable(accountsMock));
+
+        webClient.get().uri("/accounts/findByHoldersId/abc1")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Account.class)
+                .hasSize(1);
+    }
+
     private Account getAccountTest() {
         Account account = new Account();
         account.setAccountId("1");

@@ -90,7 +90,7 @@ public class AccountController {
         .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
   }
 
-  @GetMapping("findByHoldersId/{id}")
+  @GetMapping("findByHoldersId/{holdersId}")
   public Flux<Account> findByHoldersId(@PathVariable String holdersId) {
     return service.findByHoldersId(holdersId);
   }
