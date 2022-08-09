@@ -1,6 +1,8 @@
 package com.example.msaccount.service;
 
 import com.example.msaccount.dto.AccountCustomerDto;
+import com.example.msaccount.dto.AccountWithHoldersDto;
+import com.example.msaccount.dto.BalanceDto;
 import com.example.msaccount.error.AccountInvalidBalanceException;
 import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
 import com.example.msaccount.error.PersonalCustomerHasAccountException;
@@ -21,6 +23,7 @@ import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @SpringBootTest
@@ -192,6 +195,40 @@ class AccountServiceImplTest {
                 .verifyComplete();
     }
 
+    @Test
+    void addHolder() {
+        Mockito.when(repository.findById(Mockito.anyString()))
+                .thenReturn(Mono.just(getAccountTestBusinessOwnerType()));
+        Mockito.when(customerAccountService.save(Mockito.any(CustomerAccount.class)))
+                .thenReturn(Mono.just(getCustomerAccountTest()));
+        Mono<AccountWithHoldersDto> response = accountService.addHolders("1", "1");
+        StepVerifier.create(response)
+                .expectNext(new AccountWithHoldersDto(getAccountTestBusinessOwnerType(),
+                        Arrays.asList(getCustomerAccountTest().getIdCustomer(), getCustomerAccountTest().getIdCustomer())))
+                .verifyComplete();
+    }
+
+    @Test
+    void getBalance() {
+        Mockito.when(repository.findById(Mockito.anyString()))
+                .thenReturn(Mono.just(getAccountTest()));
+        Mono<BalanceDto> response = accountService.getBalance("1");
+        StepVerifier.create(response)
+                .expectNext(new BalanceDto(getAccountTest().getBalance(),
+                        getAccountTest().getCurrency()))
+                .verifyComplete();
+    }
+
+    @Test
+    void findByCustomerOwnerId() {
+        Mockito.when(repository.findByCustomerOwnerId(Mockito.anyString()))
+                .thenReturn(Flux.just(getAccountTest()));
+        Flux<Account> response = accountService.findByCustomerOwnerId("1");
+        StepVerifier.create(response)
+                .expectNext(getAccountTest())
+                .verifyComplete();
+    }
+
     private Customer getCustomerBusiness() {
         Customer customer = new Customer();
         customer.setCustomerId("1");
@@ -263,6 +300,23 @@ class AccountServiceImplTest {
         account.setCustomerOwnerId("1");
         account.setCustomerOwnerType("PERSONAL");
         return account;
+    }
+
+    private Account getAccountTestBusinessOwnerType() {
+        Account account = new Account();
+        account.setAccountId("1");
+        account.setAccountType("CORRIENTE");
+        account.setBalance(BigDecimal.valueOf(1000));
+        account.setCustomerOwnerId("abc");
+        account.setCustomerOwnerType("BUSINESS");
+        return account;
+    }
+
+    private CustomerAccount getCustomerAccountTest() {
+        return CustomerAccount.builder()
+                .id("1")
+                .idCustomer("abc")
+                .build();
     }
 
 }
