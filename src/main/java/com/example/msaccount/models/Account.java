@@ -27,4 +27,5 @@ public class Account {
   private String updatedAt;
   private String customerOwnerType;
   private String customerOwnerId;
+  private String cardId;
 }
