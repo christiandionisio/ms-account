@@ -17,3 +17,7 @@ customer:
 card:
   service:
     uri: "http://localhost:9084/cards/"
+
+credit:
+    service:
+        uri: "http://localhost:9085/credits/"

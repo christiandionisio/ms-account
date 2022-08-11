@@ -31,6 +31,9 @@ public class AccountBusinessRulesUtil {
   @Value("${card.service.uri}")
   private String uriCardService;
 
+  @Value("${credit.service.uri}")
+  private String uriCreditService;
+
   public Mono<Customer> findCustomerById(String id) {
     return WebClient.create().get()
         .uri(uriCustomerService + id)
@@ -62,9 +65,10 @@ public class AccountBusinessRulesUtil {
         .bodyToMono(Long.class);
   }
 
-  public static Flux<CreditDto> findCreditWithOverdueDebt(String idCustomer) {
+  public Flux<CreditDto> findCreditWithOverdueDebt(String idCustomer) {
     return WebClient.create().get()
-            .uri("http://localhost:9085/credits/creditWithOverdueDebt?" +
+            .uri( uriCreditService +
+                    "creditWithOverdueDebt?" +
                     "customerId=" + idCustomer + "&date=" +
                     LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
             .accept(MediaType.APPLICATION_JSON)
@@ -72,9 +76,10 @@ public class AccountBusinessRulesUtil {
             .bodyToFlux(CreditDto.class);
   }
 
-  public static Flux<CreditCardDto> getCreditCardsWithOverdueDebt(String idCustomer) {
+  public Flux<CreditCardDto> getCreditCardsWithOverdueDebt(String idCustomer) {
     return WebClient.create().get()
-            .uri("http://localhost:9084/credit-cards/creditCardsWithOverdueDebt?" +
+            .uri(uriCardService +
+                    "creditCardsWithOverdueDebt?" +
                     "customerId=" + idCustomer + "&hasDebt=true")
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()

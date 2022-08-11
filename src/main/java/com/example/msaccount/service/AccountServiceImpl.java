@@ -167,12 +167,12 @@ public class AccountServiceImpl implements IAccountService {
   }
 
   private Mono<Customer> validateDebtInCreditAndCreditCard(Customer customer) {
-    return AccountBusinessRulesUtil.findCreditWithOverdueDebt(customer.getCustomerId())
+    return accountBusinessRulesUtil.findCreditWithOverdueDebt(customer.getCustomerId())
             .hasElements()
             .flatMap(hasDebt -> (Boolean.TRUE.equals(hasDebt))
                     ? Mono.error(new CustomerHasCreditDebtException())
                     : Mono.just(customer))
-            .flatMap(customerWithoutCreditDebt -> AccountBusinessRulesUtil
+            .flatMap(customerWithoutCreditDebt -> accountBusinessRulesUtil
                     .getCreditCardsWithOverdueDebt(customer.getCustomerId())
                       .hasElements()
                       .flatMap(hasDebt -> (Boolean.TRUE.equals(hasDebt))

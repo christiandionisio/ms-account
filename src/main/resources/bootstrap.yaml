@@ -18,3 +18,7 @@ card:
   service:
     uri: "http://localhost:8084/cards/"
 
+credit:
+  service:
+    uri: "http://localhost:8085/credits/"
+
