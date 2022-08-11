@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -129,8 +130,8 @@ public class AccountController {
     return Mono.just(new ResponseEntity<>(service.findByCustomerOwnerId(customerOwnerId), HttpStatus.OK));
   }
 
-  @GetMapping("/findByCustomerOwnerIdAndAccountId/{customerOwnerId}/{accountId}")
-  public Mono<ResponseEntity<Mono<Account>>> findByCustomerOwnerId(@PathVariable String customerOwnerId, @PathVariable String accountId) {
+  @GetMapping("/findByCustomerOwnerIdAndAccountId")
+  public Mono<ResponseEntity<Mono<Account>>> findByCustomerOwnerId(@RequestParam String customerOwnerId, @RequestParam String accountId) {
     return Mono.just(new ResponseEntity<>(service.findByCustomerOwnerIdAndAccountId(customerOwnerId, accountId), HttpStatus.OK));
   }
 }
