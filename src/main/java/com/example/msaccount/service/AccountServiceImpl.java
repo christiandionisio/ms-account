@@ -31,6 +31,9 @@ public class AccountServiceImpl implements IAccountService {
   @Autowired
   private ICustomerAccountService customerAccountService;
 
+  @Autowired
+  private AccountBusinessRulesUtil accountBusinessRulesUtil;
+
   @Override
   public Flux<Account> findAll() {
     return repository.findAll();
@@ -44,7 +47,7 @@ public class AccountServiceImpl implements IAccountService {
   @Override
   public Mono<Account> create(AccountCustomerDto accountCustomerDto) {
     accountCustomerDto.getAccount().setCustomerOwnerId(accountCustomerDto.getHolder());
-    return AccountBusinessRulesUtil.findCustomerById(accountCustomerDto.getHolder()).flatMap(customer -> {
+    return accountBusinessRulesUtil.findCustomerById(accountCustomerDto.getHolder()).flatMap(customer -> {
 
       if (accountCustomerDto.getAccount().getBalance().compareTo(BigDecimal.ZERO) == -1) {
         return Mono.error(new AccountInvalidBalanceException());
@@ -64,7 +67,7 @@ public class AccountServiceImpl implements IAccountService {
           category = CustomerCategoryTypeEnum.GENERAL.getValue();
         }
         if (category.equals(CustomerCategoryTypeEnum.PYME.getValue())) {
-          return AccountBusinessRulesUtil.getQuantityOfCreditCardsByCustomer(customer.getCustomerId())
+          return accountBusinessRulesUtil.getQuantityOfCreditCardsByCustomer(customer.getCustomerId())
               .flatMap(count -> {
                 Integer countCreditCards = count.intValue();
                 if (countCreditCards.compareTo(0) == 1) {
@@ -98,7 +101,7 @@ public class AccountServiceImpl implements IAccountService {
                   category = CustomerCategoryTypeEnum.GENERAL.getValue();
                 }
                 if (category.equals(CustomerCategoryTypeEnum.VIP.getValue())) {
-                  return AccountBusinessRulesUtil.getQuantityOfCreditCardsByCustomer(customer.getCustomerId())
+                  return accountBusinessRulesUtil.getQuantityOfCreditCardsByCustomer(customer.getCustomerId())
                       .flatMap(count -> {
                         Integer countCreditCards = count.intValue();
                         if (countCreditCards.compareTo(0) == 1) {
@@ -134,7 +137,7 @@ public class AccountServiceImpl implements IAccountService {
   @Override
   public Mono<AccountWithHoldersDto> addHolders(String holderId, String accountId) {
     return repository.findById(accountId)
-        .flatMap(AccountBusinessRulesUtil::validateSupportOfAccount)
+        .flatMap(accountBusinessRulesUtil::validateSupportOfAccount)
         .flatMap(accountWithHoldersDTO -> {
           if (accountWithHoldersDTO.getHolders().contains(holderId)) {
             return Mono.error(new HolderAlredyExistInAccountEException());

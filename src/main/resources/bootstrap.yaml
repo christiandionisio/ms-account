@@ -13,4 +13,8 @@ server:
 
 customer:
   service:
-    url: http://localhost:8082
+    uri: "http://localhost:8082/customers/"
+card:
+  service:
+    uri: "http://localhost:8084/cards/"
+

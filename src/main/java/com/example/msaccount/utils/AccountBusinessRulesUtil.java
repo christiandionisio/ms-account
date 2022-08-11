@@ -8,16 +8,26 @@ import com.example.msaccount.models.Account;
 import com.example.msaccount.models.Customer;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+@Component
 public class AccountBusinessRulesUtil {
 
-  public static Mono<Customer> findCustomerById(String id) {
+  @Value("${customer.service.uri}")
+  private String uriCustomerService;
+
+  @Value("${card.service.uri}")
+  private String uriCardService;
+
+  public Mono<Customer> findCustomerById(String id) {
     return WebClient.create().get()
-        .uri("http://localhost:9082/customers/" + id)
+        .uri(uriCustomerService + id)
         .accept(MediaType.APPLICATION_JSON)
         .retrieve()
         .onStatus(HttpStatus::is4xxClientError, response ->
@@ -26,7 +36,7 @@ public class AccountBusinessRulesUtil {
         .bodyToMono(Customer.class);
   }
 
-  public static Mono<AccountWithHoldersDto> validateSupportOfAccount(Account accountDb) {
+  public Mono<AccountWithHoldersDto> validateSupportOfAccount(Account accountDb) {
     if (accountDb.getCustomerOwnerType().equalsIgnoreCase(CustomerTypeEnum.BUSINESS.getValue())) {
       return Mono.just(new AccountWithHoldersDto(accountDb,
           new ArrayList<>(Arrays.asList(accountDb.getCustomerOwnerId()))));
@@ -35,9 +45,9 @@ public class AccountBusinessRulesUtil {
     }
   }
 
-  public static Mono<Long> getQuantityOfCreditCardsByCustomer(String customerId) {
+  public Mono<Long> getQuantityOfCreditCardsByCustomer(String customerId) {
     return WebClient.create().get()
-        .uri("http://localhost:9084/credit-cards/count/" + customerId)
+        .uri(uriCardService+ "count/" + customerId)
         .accept(MediaType.APPLICATION_JSON)
         .retrieve()
         .onStatus(HttpStatus::is4xxClientError, response ->
