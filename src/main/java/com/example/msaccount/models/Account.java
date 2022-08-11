@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Document(collection = "accounts")
 @Data
@@ -28,4 +29,5 @@ public class Account {
   private String customerOwnerType;
   private String customerOwnerId;
   private String cardId;
+  private LocalDateTime cardIdAssociateDate;
 }

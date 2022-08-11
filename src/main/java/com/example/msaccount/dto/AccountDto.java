@@ -3,6 +3,7 @@ package com.example.msaccount.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 public class AccountDto {
@@ -17,4 +18,5 @@ public class AccountDto {
   private String customerOwnerType;
   private String customerOwnerId;
   private String cardId;
+  private LocalDateTime cardIdAssociateDate;
 }
