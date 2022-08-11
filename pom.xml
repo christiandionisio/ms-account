@@ -19,6 +19,7 @@
         <sonar.cpd.exclusions>
             com/example/msaccount/dto/**
         </sonar.cpd.exclusions>
+
     </properties>
     <dependencies>
         <dependency>

@@ -1,16 +1,22 @@
 package com.example.msaccount.utils;
 
 import com.example.msaccount.dto.AccountWithHoldersDto;
+import com.example.msaccount.dto.CreditCardDto;
+import com.example.msaccount.dto.CreditDto;
 import com.example.msaccount.enums.CustomerTypeEnum;
 import com.example.msaccount.error.AccountNotSupportedForMultipleHoldersException;
 import com.example.msaccount.error.CustomerNotFoundException;
 import com.example.msaccount.models.Account;
 import com.example.msaccount.models.Customer;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class AccountBusinessRulesUtil {
@@ -45,4 +51,25 @@ public class AccountBusinessRulesUtil {
         )
         .bodyToMono(Long.class);
   }
+
+  public static Flux<CreditDto> findCreditWithOverdueDebt(String idCustomer) {
+    return WebClient.create().get()
+            .uri("http://localhost:9085/credits/creditWithOverdueDebt?" +
+                    "customerId=" + idCustomer + "&date=" +
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .bodyToFlux(CreditDto.class);
+  }
+
+  public static Flux<CreditCardDto> getCreditCardsWithOverdueDebt(String idCustomer) {
+    return WebClient.create().get()
+            .uri("http://localhost:9084/credit-cards/creditCardsWithOverdueDebt?" +
+                    "customerId=" + idCustomer + "&hasDebt=true")
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .bodyToFlux(CreditCardDto.class);
+  }
+
+
 }

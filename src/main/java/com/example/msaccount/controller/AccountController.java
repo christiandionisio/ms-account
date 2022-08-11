@@ -4,12 +4,7 @@ import com.example.msaccount.dto.AccountCustomerDto;
 import com.example.msaccount.dto.AccountDto;
 import com.example.msaccount.dto.HolderAccountDto;
 import com.example.msaccount.dto.ResponseTemplateDto;
-import com.example.msaccount.error.AccountCustomerWithoutCreditCardRequiredException;
-import com.example.msaccount.error.AccountInvalidBalanceException;
-import com.example.msaccount.error.AccountNotSupportedForMultipleHoldersException;
-import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
-import com.example.msaccount.error.HolderAlredyExistInAccountEException;
-import com.example.msaccount.error.PersonalCustomerHasAccountException;
+import com.example.msaccount.error.*;
 import com.example.msaccount.models.Account;
 import com.example.msaccount.models.CustomerAccount;
 import com.example.msaccount.service.IAccountService;
@@ -62,7 +57,9 @@ public class AccountController {
           if (e instanceof PersonalCustomerHasAccountException
               || e instanceof AccountToBusinessCustomerNotAllowedExecption
               || e instanceof AccountInvalidBalanceException
-              || e instanceof AccountCustomerWithoutCreditCardRequiredException) {
+              || e instanceof AccountCustomerWithoutCreditCardRequiredException
+              || e instanceof CustomerHasCreditDebtException
+              || e instanceof CustomerHasCreditCardDebtException) {
             logger.error(e.getMessage());
             return Mono.just(new ResponseEntity<>(new ResponseTemplateDto(null,
                 e.getMessage()), HttpStatus.FORBIDDEN));
