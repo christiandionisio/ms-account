@@ -6,12 +6,9 @@ import com.example.msaccount.dto.BalanceDto;
 import com.example.msaccount.enums.AccountTypeEnum;
 import com.example.msaccount.enums.CustomerCategoryTypeEnum;
 import com.example.msaccount.enums.CustomerTypeEnum;
-import com.example.msaccount.error.AccountCustomerWithoutCreditCardRequiredException;
-import com.example.msaccount.error.AccountInvalidBalanceException;
-import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
-import com.example.msaccount.error.HolderAlredyExistInAccountEException;
-import com.example.msaccount.error.PersonalCustomerHasAccountException;
+import com.example.msaccount.error.*;
 import com.example.msaccount.models.Account;
+import com.example.msaccount.models.Customer;
 import com.example.msaccount.models.CustomerAccount;
 import com.example.msaccount.repo.AccountRepository;
 import com.example.msaccount.utils.AccountBusinessRulesUtil;
@@ -47,76 +44,78 @@ public class AccountServiceImpl implements IAccountService {
   @Override
   public Mono<Account> create(AccountCustomerDto accountCustomerDto) {
     accountCustomerDto.getAccount().setCustomerOwnerId(accountCustomerDto.getHolder());
-    return accountBusinessRulesUtil.findCustomerById(accountCustomerDto.getHolder()).flatMap(customer -> {
+    return accountBusinessRulesUtil.findCustomerById(accountCustomerDto.getHolder())
+            .flatMap(this::validateDebtInCreditAndCreditCard)
+            .flatMap(customer -> {
 
-      if (accountCustomerDto.getAccount().getBalance().compareTo(BigDecimal.ZERO) == -1) {
-        return Mono.error(new AccountInvalidBalanceException());
-      }
+              if (accountCustomerDto.getAccount().getBalance().compareTo(BigDecimal.ZERO) == -1) {
+                return Mono.error(new AccountInvalidBalanceException());
+              }
 
-      accountCustomerDto.getAccount().setCustomerOwnerType(customer.getCustomerType());
-      // Valida el tipo de cliente
-      if (customer.getCustomerType().equalsIgnoreCase(CustomerTypeEnum.BUSINESS.getValue())) {
-        // CLIENTE EMPRESARIAL
-        if (accountCustomerDto.getAccount().getAccountType().equalsIgnoreCase(AccountTypeEnum.SAVING_ACCOUNT.getValue())
-            || accountCustomerDto.getAccount().getAccountType().equalsIgnoreCase(AccountTypeEnum.DEPOSIT_ACCOUNT.getValue())) {
-          return Mono.error(new AccountToBusinessCustomerNotAllowedExecption());
-        }
-
-        String category = customer.getCategory();
-        if (customer.getCategory() == null) {
-          category = CustomerCategoryTypeEnum.GENERAL.getValue();
-        }
-        if (category.equals(CustomerCategoryTypeEnum.PYME.getValue())) {
-          return accountBusinessRulesUtil.getQuantityOfCreditCardsByCustomer(customer.getCustomerId())
-              .flatMap(count -> {
-                Integer countCreditCards = count.intValue();
-                if (countCreditCards.compareTo(0) == 1) {
-                  return repository.save(accountCustomerDto.getAccount());
-                } else {
-                  return Mono.error(new AccountCustomerWithoutCreditCardRequiredException(CustomerCategoryTypeEnum.PYME.getValue()));
+              accountCustomerDto.getAccount().setCustomerOwnerType(customer.getCustomerType());
+              // Valida el tipo de cliente
+              if (customer.getCustomerType().equalsIgnoreCase(CustomerTypeEnum.BUSINESS.getValue())) {
+                // CLIENTE EMPRESARIAL
+                if (accountCustomerDto.getAccount().getAccountType().equalsIgnoreCase(AccountTypeEnum.SAVING_ACCOUNT.getValue())
+                        || accountCustomerDto.getAccount().getAccountType().equalsIgnoreCase(AccountTypeEnum.DEPOSIT_ACCOUNT.getValue())) {
+                  return Mono.error(new AccountToBusinessCustomerNotAllowedExecption());
                 }
-              });
-        } else {
-          return repository.save(accountCustomerDto.getAccount());
-        }
-      } else {
-        // CLIENTE PERSONAL
-        Flux<Boolean> validateIfAccountExist = customerAccountService.findByIdCustomer(customer.getCustomerId())
-            .flatMap(customerAccount -> {
-              // VALIDAR SI CLIENTE TIENE UNA CUENTA ASOCIADA
-              return repository.findByAccountIdAndAccountType(customerAccount.getIdAccount(),
-                      accountCustomerDto.getAccount().getAccountType())
-                  .flatMap(accountExist -> Mono.just(true))
-                  .defaultIfEmpty(false);
-            });
-        return validateIfAccountExist
-            .collectList()
-            .flatMap(values -> (values.contains(true)) ? Mono.just(true) : Mono.just(false))
-            .flatMap(customerHasAccount -> {
-              if (Boolean.TRUE.equals((customerHasAccount))) {
-                return Mono.error(new PersonalCustomerHasAccountException());
-              } else {
+
                 String category = customer.getCategory();
                 if (customer.getCategory() == null) {
                   category = CustomerCategoryTypeEnum.GENERAL.getValue();
                 }
-                if (category.equals(CustomerCategoryTypeEnum.VIP.getValue())) {
+                if (category.equals(CustomerCategoryTypeEnum.PYME.getValue())) {
                   return accountBusinessRulesUtil.getQuantityOfCreditCardsByCustomer(customer.getCustomerId())
-                      .flatMap(count -> {
-                        Integer countCreditCards = count.intValue();
-                        if (countCreditCards.compareTo(0) == 1) {
-                          return repository.save(accountCustomerDto.getAccount());
-                        } else {
-                          return Mono.error(new AccountCustomerWithoutCreditCardRequiredException(CustomerCategoryTypeEnum.VIP.getValue()));
-                        }
-                      });
+                          .flatMap(count -> {
+                            Integer countCreditCards = count.intValue();
+                            if (countCreditCards.compareTo(0) == 1) {
+                              return repository.save(accountCustomerDto.getAccount());
+                            } else {
+                              return Mono.error(new AccountCustomerWithoutCreditCardRequiredException(CustomerCategoryTypeEnum.PYME.getValue()));
+                            }
+                          });
                 } else {
                   return repository.save(accountCustomerDto.getAccount());
                 }
+              } else {
+                // CLIENTE PERSONAL
+                Flux<Boolean> validateIfAccountExist = customerAccountService.findByIdCustomer(customer.getCustomerId())
+                        .flatMap(customerAccount -> {
+                          // VALIDAR SI CLIENTE TIENE UNA CUENTA ASOCIADA
+                          return repository.findByAccountIdAndAccountType(customerAccount.getIdAccount(),
+                                          accountCustomerDto.getAccount().getAccountType())
+                                  .flatMap(accountExist -> Mono.just(true))
+                                  .defaultIfEmpty(false);
+                        });
+                return validateIfAccountExist
+                        .collectList()
+                        .flatMap(values -> (values.contains(true)) ? Mono.just(true) : Mono.just(false))
+                        .flatMap(customerHasAccount -> {
+                          if (Boolean.TRUE.equals((customerHasAccount))) {
+                            return Mono.error(new PersonalCustomerHasAccountException());
+                          } else {
+                            String category = customer.getCategory();
+                            if (customer.getCategory() == null) {
+                              category = CustomerCategoryTypeEnum.GENERAL.getValue();
+                            }
+                            if (category.equals(CustomerCategoryTypeEnum.VIP.getValue())) {
+                              return accountBusinessRulesUtil.getQuantityOfCreditCardsByCustomer(customer.getCustomerId())
+                                      .flatMap(count -> {
+                                        Integer countCreditCards = count.intValue();
+                                        if (countCreditCards.compareTo(0) == 1) {
+                                          return repository.save(accountCustomerDto.getAccount());
+                                        } else {
+                                          return Mono.error(new AccountCustomerWithoutCreditCardRequiredException(CustomerCategoryTypeEnum.VIP.getValue()));
+                                        }
+                                      });
+                            } else {
+                              return repository.save(accountCustomerDto.getAccount());
+                            }
+                          }
+                        });
               }
             });
-      }
-    });
   }
 
   @Override
@@ -165,5 +164,20 @@ public class AccountServiceImpl implements IAccountService {
   @Override
   public Flux<Account> findByCustomerOwnerId(String customerOwnerId) {
     return repository.findByCustomerOwnerId(customerOwnerId);
+  }
+
+  private Mono<Customer> validateDebtInCreditAndCreditCard(Customer customer) {
+    return AccountBusinessRulesUtil.findCreditWithOverdueDebt(customer.getCustomerId())
+            .hasElements()
+            .flatMap(hasDebt -> (Boolean.TRUE.equals(hasDebt))
+                    ? Mono.error(new CustomerHasCreditDebtException())
+                    : Mono.just(customer))
+            .flatMap(customerWithoutCreditDebt -> AccountBusinessRulesUtil
+                    .getCreditCardsWithOverdueDebt(customer.getCustomerId())
+                      .hasElements()
+                      .flatMap(hasDebt -> (Boolean.TRUE.equals(hasDebt))
+                              ? Mono.error(new CustomerHasCreditCardDebtException())
+                              : Mono.just(customerWithoutCreditDebt))
+            );
   }
 }
