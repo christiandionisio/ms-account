@@ -128,4 +128,9 @@ public class AccountController {
   public Mono<ResponseEntity<Flux<Account>>> findByCustomerOwnerId(@PathVariable String customerOwnerId) {
     return Mono.just(new ResponseEntity<>(service.findByCustomerOwnerId(customerOwnerId), HttpStatus.OK));
   }
+
+  @GetMapping("/findByCustomerOwnerIdAndAccountId/{customerOwnerId}/{accountId}")
+  public Mono<ResponseEntity<Mono<Account>>> findByCustomerOwnerId(@PathVariable String customerOwnerId, @PathVariable String accountId) {
+    return Mono.just(new ResponseEntity<>(service.findByCustomerOwnerIdAndAccountId(customerOwnerId, accountId), HttpStatus.OK));
+  }
 }

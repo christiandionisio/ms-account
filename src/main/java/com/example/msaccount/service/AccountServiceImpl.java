@@ -180,4 +180,9 @@ public class AccountServiceImpl implements IAccountService {
                               : Mono.just(customerWithoutCreditDebt))
             );
   }
+
+  @Override
+  public Mono<Account> findByCustomerOwnerIdAndAccountId(String customerOwnerId, String accountId) {
+    return repository.findByCustomerOwnerIdAndAccountId(customerOwnerId, accountId);
+  }
 }

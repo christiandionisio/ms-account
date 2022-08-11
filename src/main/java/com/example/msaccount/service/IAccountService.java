@@ -26,4 +26,5 @@ public interface IAccountService {
 
   Flux<Account> findByCustomerOwnerId(String customerOwnerId);
 
+  Mono<Account> findByCustomerOwnerIdAndAccountId(String customerOwnerId, String accountId);
 }
