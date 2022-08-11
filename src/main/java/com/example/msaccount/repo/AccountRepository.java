@@ -9,4 +9,7 @@ public interface AccountRepository extends ReactiveMongoRepository<Account, Stri
   Mono<Account> findByAccountIdAndAccountType(String accountId, String accountType);
 
   Flux<Account> findByCustomerOwnerId(String customerOwnerId);
+
+  Mono<Account> findByCustomerOwnerIdAndAccountId(String customerOwnerId, String accountId);
+
 }
