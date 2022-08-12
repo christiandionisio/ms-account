@@ -3,6 +3,7 @@ package com.example.msaccount.service;
 import com.example.msaccount.dto.AccountCustomerDto;
 import com.example.msaccount.dto.AccountWithHoldersDto;
 import com.example.msaccount.dto.BalanceDto;
+import com.example.msaccount.enums.CustomerTypeEnum;
 import com.example.msaccount.error.AccountInvalidBalanceException;
 import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
 import com.example.msaccount.error.PersonalCustomerHasAccountException;
@@ -67,6 +68,12 @@ class AccountServiceImplTest {
     Mockito.when(accountBusinessRulesUtil.findCustomerById(Mockito.anyString()))
             .thenReturn(Mono.just(getCustomerBusiness()));
 
+    Mockito.when(accountBusinessRulesUtil.findCreditWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
+
+    Mockito.when(accountBusinessRulesUtil.getCreditCardsWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
+
     Mockito.when(repository.save(Mockito.any(Account.class)))
             .thenReturn(Mono.just(getAccountTest()));
 
@@ -82,6 +89,12 @@ class AccountServiceImplTest {
 
     Mockito.when(accountBusinessRulesUtil.findCustomerById(Mockito.anyString()))
             .thenReturn(Mono.just(getCustomerBusinessPymeCategory()));
+
+    Mockito.when(accountBusinessRulesUtil.findCreditWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
+
+    Mockito.when(accountBusinessRulesUtil.getCreditCardsWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
 
     Mockito.when(accountBusinessRulesUtil.getQuantityOfCreditCardsByCustomer(Mockito.anyString()))
             .thenReturn(Mono.just(Long.valueOf(10)));
@@ -102,6 +115,12 @@ class AccountServiceImplTest {
     Mockito.when(accountBusinessRulesUtil.findCustomerById(Mockito.anyString()))
             .thenReturn(Mono.just(getCustomerBusiness()));
 
+    Mockito.when(accountBusinessRulesUtil.findCreditWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
+
+    Mockito.when(accountBusinessRulesUtil.getCreditCardsWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
+
     StepVerifier.create(accountService.create(getAccountCustomerDtoCurrentAccountWithZeroBalanceTest()))
             .expectError(AccountInvalidBalanceException.class)
             .verify();
@@ -113,6 +132,12 @@ class AccountServiceImplTest {
 
     Mockito.when(accountBusinessRulesUtil.findCustomerById(Mockito.anyString()))
             .thenReturn(Mono.just(getCustomerBusiness()));
+
+    Mockito.when(accountBusinessRulesUtil.findCreditWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
+
+    Mockito.when(accountBusinessRulesUtil.getCreditCardsWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
 
     StepVerifier.create(accountService.create(getAccountCustomerDtoCurrentAccountWithSavingAccountTypeTest()))
             .expectError(AccountToBusinessCustomerNotAllowedExecption.class)
@@ -126,6 +151,12 @@ class AccountServiceImplTest {
 
     Mockito.when(accountBusinessRulesUtil.findCustomerById(Mockito.anyString()))
             .thenReturn(Mono.just(getCustomerPersonal()));
+
+    Mockito.when(accountBusinessRulesUtil.findCreditWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
+
+    Mockito.when(accountBusinessRulesUtil.getCreditCardsWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
 
     List<CustomerAccount> customerAccounts = new ArrayList<>();
     customerAccounts.add(new CustomerAccount("1", "2", "3"));
@@ -147,6 +178,12 @@ class AccountServiceImplTest {
 
     Mockito.when(accountBusinessRulesUtil.findCustomerById(Mockito.anyString()))
             .thenReturn(Mono.just(getCustomerPersonalVipCategory()));
+
+    Mockito.when(accountBusinessRulesUtil.findCreditWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
+
+    Mockito.when(accountBusinessRulesUtil.getCreditCardsWithOverdueDebt(Mockito.anyString()))
+            .thenReturn(Flux.empty());
 
     Mockito.when(customerAccountService.findByIdCustomer(Mockito.anyString()))
             .thenReturn(Flux.empty());
@@ -193,6 +230,11 @@ class AccountServiceImplTest {
   void addHolder() {
     Mockito.when(repository.findById(Mockito.anyString()))
             .thenReturn(Mono.just(getAccountTestBusinessOwnerType()));
+
+    Mockito.when(accountBusinessRulesUtil.validateSupportOfAccount(Mockito.any(Account.class)))
+            .thenReturn(Mono.just(new AccountWithHoldersDto(getAccountTestBusinessOwnerType(),
+                    new ArrayList<>(Arrays.asList(getCustomerAccountTest().getIdCustomer())))));
+
     Mockito.when(customerAccountService.save(Mockito.any(CustomerAccount.class)))
             .thenReturn(Mono.just(getCustomerAccountTest()));
     Mono<AccountWithHoldersDto> response = accountService.addHolders("1", "1");
@@ -303,6 +345,7 @@ class AccountServiceImplTest {
     account.setBalance(BigDecimal.valueOf(1000));
     account.setCustomerOwnerId("abc");
     account.setCustomerOwnerType("BUSINESS");
+    account.setCustomerOwnerType(CustomerTypeEnum.BUSINESS.getValue());
     return account;
   }
 
