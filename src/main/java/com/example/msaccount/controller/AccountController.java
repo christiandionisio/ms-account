@@ -4,7 +4,14 @@ import com.example.msaccount.dto.AccountCustomerDto;
 import com.example.msaccount.dto.AccountDto;
 import com.example.msaccount.dto.HolderAccountDto;
 import com.example.msaccount.dto.ResponseTemplateDto;
-import com.example.msaccount.error.*;
+import com.example.msaccount.error.AccountCustomerWithoutCreditCardRequiredException;
+import com.example.msaccount.error.AccountInvalidBalanceException;
+import com.example.msaccount.error.AccountNotSupportedForMultipleHoldersException;
+import com.example.msaccount.error.AccountToBusinessCustomerNotAllowedExecption;
+import com.example.msaccount.error.CustomerHasCreditCardDebtException;
+import com.example.msaccount.error.CustomerHasCreditDebtException;
+import com.example.msaccount.error.HolderAlredyExistInAccountEException;
+import com.example.msaccount.error.PersonalCustomerHasAccountException;
 import com.example.msaccount.models.Account;
 import com.example.msaccount.models.CustomerAccount;
 import com.example.msaccount.service.IAccountService;
@@ -50,42 +57,42 @@ public class AccountController {
   @PostMapping()
   public Mono<ResponseEntity<Object>> create(@RequestBody AccountCustomerDto accountCustomerDto) {
     return service.create(accountCustomerDto)
-        .flatMap(accountCreated -> customerAccountService
-            .save(new CustomerAccount(null, accountCustomerDto.getHolder(), accountCreated.getAccountId()))
-            .flatMap(response -> Mono.just(new ResponseEntity<>(HttpStatus.OK)))
-        )
-        .onErrorResume(e -> {
-          if (e instanceof PersonalCustomerHasAccountException
-              || e instanceof AccountToBusinessCustomerNotAllowedExecption
-              || e instanceof AccountInvalidBalanceException
-              || e instanceof AccountCustomerWithoutCreditCardRequiredException
-              || e instanceof CustomerHasCreditDebtException
-              || e instanceof CustomerHasCreditCardDebtException) {
-            logger.error(e.getMessage());
-            return Mono.just(new ResponseEntity<>(new ResponseTemplateDto(null,
-                e.getMessage()), HttpStatus.FORBIDDEN));
-          }
-          logger.error(e.getMessage());
-          return Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
-        })
-        .defaultIfEmpty(new ResponseEntity<>(new ResponseTemplateDto(null,
-            "Customer not found"), HttpStatus.NOT_FOUND));
+            .flatMap(accountCreated -> customerAccountService
+                    .save(new CustomerAccount(null, accountCustomerDto.getHolder(), accountCreated.getAccountId()))
+                    .flatMap(response -> Mono.just(new ResponseEntity<>(HttpStatus.OK)))
+            )
+            .onErrorResume(e -> {
+              if (e instanceof PersonalCustomerHasAccountException
+                      || e instanceof AccountToBusinessCustomerNotAllowedExecption
+                      || e instanceof AccountInvalidBalanceException
+                      || e instanceof AccountCustomerWithoutCreditCardRequiredException
+                      || e instanceof CustomerHasCreditDebtException
+                      || e instanceof CustomerHasCreditCardDebtException) {
+                logger.error(e.getMessage());
+                return Mono.just(new ResponseEntity<>(new ResponseTemplateDto(null,
+                        e.getMessage()), HttpStatus.FORBIDDEN));
+              }
+              logger.error(e.getMessage());
+              return Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+            })
+            .defaultIfEmpty(new ResponseEntity<>(new ResponseTemplateDto(null,
+                    "Customer not found"), HttpStatus.NOT_FOUND));
   }
 
   @PutMapping
   public Mono<ResponseEntity<Mono<Account>>> update(@RequestBody AccountDto accountDto) {
     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     return service.findById(accountDto.getAccountId())
-        .flatMap(accountFound ->
-            Mono.just(new ResponseEntity<>(service.update(modelMapper.map(accountDto, Account.class)), HttpStatus.OK)))
-        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+            .flatMap(accountFound ->
+                    Mono.just(new ResponseEntity<>(service.update(modelMapper.map(accountDto, Account.class)), HttpStatus.OK)))
+            .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
   }
 
   @DeleteMapping("/{id}")
   public Mono<ResponseEntity<Mono<Void>>> delete(@PathVariable String id) {
     return service.findById(id)
-        .flatMap(account -> Mono.just(new ResponseEntity<>(service.delete(id), HttpStatus.NO_CONTENT)))
-        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+            .flatMap(account -> Mono.just(new ResponseEntity<>(service.delete(id), HttpStatus.NO_CONTENT)))
+            .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
   }
 
   @GetMapping("findByHoldersId/{holdersId}")
@@ -96,17 +103,17 @@ public class AccountController {
   @PostMapping("/addHolder")
   public Mono<ResponseEntity<ResponseTemplateDto>> addHolderInAccount(@RequestBody HolderAccountDto holderAccountDto) {
     return service.addHolders(holderAccountDto.getHolderId(), holderAccountDto.getAccountId())
-        .flatMap(response -> Mono.just(ResponseEntity.ok().body(new ResponseTemplateDto(response, ""))))
-        .onErrorResume(e -> {
-          if (e instanceof AccountNotSupportedForMultipleHoldersException
-              || e instanceof HolderAlredyExistInAccountEException) {
-            logger.error(e.getMessage());
-            return Mono.just(new ResponseEntity<>(new ResponseTemplateDto(null,
-                e.getMessage()), HttpStatus.FORBIDDEN));
-          }
-          logger.error(e.getMessage());
-          return Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
-        });
+            .flatMap(response -> Mono.just(ResponseEntity.ok().body(new ResponseTemplateDto(response, ""))))
+            .onErrorResume(e -> {
+              if (e instanceof AccountNotSupportedForMultipleHoldersException
+                      || e instanceof HolderAlredyExistInAccountEException) {
+                logger.error(e.getMessage());
+                return Mono.just(new ResponseEntity<>(new ResponseTemplateDto(null,
+                        e.getMessage()), HttpStatus.FORBIDDEN));
+              }
+              logger.error(e.getMessage());
+              return Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+            });
   }
 
   @GetMapping("/{id}")
@@ -117,12 +124,12 @@ public class AccountController {
   @GetMapping("/balance/{accountId}")
   public Mono<ResponseEntity<Object>> getBalanceAvailable(@PathVariable String accountId) {
     return service.getBalance(accountId)
-        .flatMap(balance -> {
-          ResponseEntity<Object> response = ResponseEntity.ok().body(balance);
-          return Mono.just(response);
-        })
-        .defaultIfEmpty(new ResponseEntity<>(new ResponseTemplateDto(HttpStatus.NOT_FOUND,
-            "Account not found"), HttpStatus.NOT_FOUND));
+            .flatMap(balance -> {
+              ResponseEntity<Object> response = ResponseEntity.ok().body(balance);
+              return Mono.just(response);
+            })
+            .defaultIfEmpty(new ResponseEntity<>(new ResponseTemplateDto(HttpStatus.NOT_FOUND,
+                    "Account not found"), HttpStatus.NOT_FOUND));
   }
 
   @GetMapping("/findByCustomerOwnerId/{customerOwnerId}")
