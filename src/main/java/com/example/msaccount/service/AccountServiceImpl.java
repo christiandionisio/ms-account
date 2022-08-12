@@ -185,4 +185,9 @@ public class AccountServiceImpl implements IAccountService {
   public Mono<Account> findByCustomerOwnerIdAndAccountId(String customerOwnerId, String accountId) {
     return repository.findByCustomerOwnerIdAndAccountId(customerOwnerId, accountId);
   }
+
+  @Override
+  public Flux<Account> findByCustomerOwnerIdAndCardId(String customerOwnerId, String cardId) {
+    return repository.findByCustomerOwnerIdAndCardIdOrderByCardIdAssociateDateAsc(customerOwnerId, cardId);
+  }
 }
