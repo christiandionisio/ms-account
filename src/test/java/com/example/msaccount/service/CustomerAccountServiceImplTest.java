@@ -14,34 +14,34 @@ import reactor.test.StepVerifier;
 @SpringBootTest
 class CustomerAccountServiceImplTest {
 
-    @MockBean
-    private CustomerAccountRepository repository;
+  @MockBean
+  private CustomerAccountRepository repository;
 
-    @Autowired
-    private CustomerAccountServiceImpl service;
+  @Autowired
+  private CustomerAccountServiceImpl service;
 
-    @Test
-    void findByIdCustomer() {
-        Mockito.when(repository.findByIdCustomer(Mockito.anyString()))
-                .thenReturn(Flux.just(new CustomerAccount()));
+  @Test
+  void findByIdCustomer() {
+    Mockito.when(repository.findByIdCustomer(Mockito.anyString()))
+            .thenReturn(Flux.just(new CustomerAccount()));
 
-        Flux<CustomerAccount> response = service.findByIdCustomer("1");
+    Flux<CustomerAccount> response = service.findByIdCustomer("1");
 
-        StepVerifier.create(response)
-                .expectNextCount(1)
-                .verifyComplete();
-    }
+    StepVerifier.create(response)
+            .expectNextCount(1)
+            .verifyComplete();
+  }
 
-    @Test
-    void save() {
-        Mockito.when(repository.save(Mockito.any(CustomerAccount.class)))
-                .thenReturn(Mono.just(new CustomerAccount()));
+  @Test
+  void save() {
+    Mockito.when(repository.save(Mockito.any(CustomerAccount.class)))
+            .thenReturn(Mono.just(new CustomerAccount()));
 
-        Mono<CustomerAccount> response = service.save(new CustomerAccount());
+    Mono<CustomerAccount> response = service.save(new CustomerAccount());
 
-        StepVerifier.create(response)
-                .expectNext(new CustomerAccount())
-                .verifyComplete();
-    }
+    StepVerifier.create(response)
+            .expectNext(new CustomerAccount())
+            .verifyComplete();
+  }
 
 }

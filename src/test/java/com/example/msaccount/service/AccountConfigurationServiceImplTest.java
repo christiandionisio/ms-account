@@ -17,84 +17,84 @@ import java.util.List;
 @SpringBootTest
 class AccountConfigurationServiceImplTest {
 
-    @MockBean
-    private AccountConfigurationRepository repository;
+  @MockBean
+  private AccountConfigurationRepository repository;
 
-    @Autowired
-    private AccountConfigurationServiceImpl service;
+  @Autowired
+  private AccountConfigurationServiceImpl service;
 
-    @Test
-    void findAllTest() {
-        List<AccountConfiguration> accountConfigurationList = new ArrayList<>();
-        accountConfigurationList.add(new AccountConfiguration());
+  @Test
+  void findAllTest() {
+    List<AccountConfiguration> accountConfigurationList = new ArrayList<>();
+    accountConfigurationList.add(new AccountConfiguration());
 
-        Mockito.when(repository.findAll())
-                .thenReturn(Flux.fromIterable(accountConfigurationList));
+    Mockito.when(repository.findAll())
+            .thenReturn(Flux.fromIterable(accountConfigurationList));
 
-        Flux<AccountConfiguration> accountConfigurationFlux = service.findAll();
+    Flux<AccountConfiguration> accountConfigurationFlux = service.findAll();
 
-        StepVerifier.create(accountConfigurationFlux)
-                .expectNextCount(1)
-                .verifyComplete();
-    }
+    StepVerifier.create(accountConfigurationFlux)
+            .expectNextCount(1)
+            .verifyComplete();
+  }
 
-    @Test
-    void findByIdTest() {
-        Mockito.when(repository.findById("1"))
-                .thenReturn(Mono.just(new AccountConfiguration()));
+  @Test
+  void findByIdTest() {
+    Mockito.when(repository.findById("1"))
+            .thenReturn(Mono.just(new AccountConfiguration()));
 
-        Mono<AccountConfiguration> accountConfigurationMono = service.findById("1");
+    Mono<AccountConfiguration> accountConfigurationMono = service.findById("1");
 
-        StepVerifier.create(accountConfigurationMono)
-                .expectNext(new AccountConfiguration())
-                .verifyComplete();
-    }
+    StepVerifier.create(accountConfigurationMono)
+            .expectNext(new AccountConfiguration())
+            .verifyComplete();
+  }
 
-    @Test
-    void createTest() {
-        Mockito.when(repository.save(new AccountConfiguration()))
-                .thenReturn(Mono.just(new AccountConfiguration()));
+  @Test
+  void createTest() {
+    Mockito.when(repository.save(new AccountConfiguration()))
+            .thenReturn(Mono.just(new AccountConfiguration()));
 
-        Mono<AccountConfiguration> accountConfigurationMono = service.create(new AccountConfiguration());
+    Mono<AccountConfiguration> accountConfigurationMono = service.create(new AccountConfiguration());
 
-        StepVerifier.create(accountConfigurationMono)
-                .expectNext(new AccountConfiguration())
-                .verifyComplete();
-    }
+    StepVerifier.create(accountConfigurationMono)
+            .expectNext(new AccountConfiguration())
+            .verifyComplete();
+  }
 
-    @Test
-    void updateTest() {
-        Mockito.when(repository.save(new AccountConfiguration()))
-                .thenReturn(Mono.just(new AccountConfiguration()));
+  @Test
+  void updateTest() {
+    Mockito.when(repository.save(new AccountConfiguration()))
+            .thenReturn(Mono.just(new AccountConfiguration()));
 
-        Mono<AccountConfiguration> accountConfigurationMono = service.update(new AccountConfiguration());
+    Mono<AccountConfiguration> accountConfigurationMono = service.update(new AccountConfiguration());
 
-        StepVerifier.create(accountConfigurationMono)
-                .expectNext(new AccountConfiguration())
-                .verifyComplete();
-    }
+    StepVerifier.create(accountConfigurationMono)
+            .expectNext(new AccountConfiguration())
+            .verifyComplete();
+  }
 
-    @Test
-    void deleteTest() {
-        Mockito.when(repository.deleteById("1"))
-                .thenReturn(Mono.empty());
+  @Test
+  void deleteTest() {
+    Mockito.when(repository.deleteById("1"))
+            .thenReturn(Mono.empty());
 
-        Mono<Void> voidMono = service.delete("1");
+    Mono<Void> voidMono = service.delete("1");
 
-        StepVerifier.create(voidMono)
-                .verifyComplete();
-    }
+    StepVerifier.create(voidMono)
+            .verifyComplete();
+  }
 
-    @Test
-    void findByAccountTypeAndNameTest() {
-        Mockito.when(repository.findByAccountTypeAndName(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(new AccountConfiguration()));
+  @Test
+  void findByAccountTypeAndNameTest() {
+    Mockito.when(repository.findByAccountTypeAndName(Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(Mono.just(new AccountConfiguration()));
 
-        Mono<AccountConfiguration> accountConfigurationMono = service.findByAccountTypeAndName("1", "1");
+    Mono<AccountConfiguration> accountConfigurationMono = service.findByAccountTypeAndName("1", "1");
 
-        StepVerifier.create(accountConfigurationMono)
-                .expectNext(new AccountConfiguration())
-                .verifyComplete();
-    }
+    StepVerifier.create(accountConfigurationMono)
+            .expectNext(new AccountConfiguration())
+            .verifyComplete();
+  }
 
 }

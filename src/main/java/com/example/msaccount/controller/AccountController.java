@@ -138,7 +138,7 @@ public class AccountController {
   }
 
   @GetMapping("/findByCustomerOwnerIdAndAccountId")
-  public Mono<ResponseEntity<Mono<Account>>> findByCustomerOwnerId(@RequestParam String customerOwnerId, @RequestParam String accountId) {
+  public Mono<ResponseEntity<Mono<Account>>> findByCustomerOwnerIdAndAccountId(@RequestParam String customerOwnerId, @RequestParam String accountId) {
     return Mono.just(new ResponseEntity<>(service.findByCustomerOwnerIdAndAccountId(customerOwnerId, accountId), HttpStatus.OK));
   }
 
