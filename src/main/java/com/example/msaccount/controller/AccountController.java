@@ -1,9 +1,6 @@
 package com.example.msaccount.controller;
 
-import com.example.msaccount.dto.AccountCustomerDto;
-import com.example.msaccount.dto.AccountDto;
-import com.example.msaccount.dto.HolderAccountDto;
-import com.example.msaccount.dto.ResponseTemplateDto;
+import com.example.msaccount.dto.*;
 import com.example.msaccount.error.AccountCustomerWithoutCreditCardRequiredException;
 import com.example.msaccount.error.AccountInvalidBalanceException;
 import com.example.msaccount.error.AccountNotSupportedForMultipleHoldersException;
@@ -151,4 +148,14 @@ public class AccountController {
   public Mono<ResponseEntity<Mono<Account>>> findByWalletPhoneNumber(@PathVariable String walletPhoneNumber) {
       return Mono.just(new ResponseEntity<>(service.findByWalletPhoneNumber(walletPhoneNumber), HttpStatus.OK));
   }
+
+  @PutMapping("/assingPhoneNumber/{accountId}")
+    public Mono<ResponseEntity<Object>> assingPhoneNumber(@PathVariable String accountId,
+                                                                 @RequestBody AssingPhoneNumberDto phoneNumberDto) {
+        return service.findById(accountId)
+                .flatMap(account -> {
+                    account.setWalletPhoneNumber(phoneNumberDto.getPhoneNumber());
+                    return service.update(account);
+                }).flatMap(account -> Mono.just(new ResponseEntity<>(account, HttpStatus.OK)));
+    }
 }
