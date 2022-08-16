@@ -146,4 +146,9 @@ public class AccountController {
   public Mono<ResponseEntity<Flux<Account>>> findByCustomerOwnerIdAndCardId(@RequestParam String customerOwnerId, @RequestParam String cardId) {
     return Mono.just(new ResponseEntity<>(service.findByCustomerOwnerIdAndCardId(customerOwnerId, cardId), HttpStatus.OK));
   }
+
+  @GetMapping("/findByWalletPhoneNumber/{walletPhoneNumber}")
+  public Mono<ResponseEntity<Mono<Account>>> findByWalletPhoneNumber(@PathVariable String walletPhoneNumber) {
+      return Mono.just(new ResponseEntity<>(service.findByWalletPhoneNumber(walletPhoneNumber), HttpStatus.OK));
+  }
 }
