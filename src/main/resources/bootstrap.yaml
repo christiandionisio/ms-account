@@ -7,7 +7,8 @@ spring:
   cloud:
     config:
       name: ms-account
-      uri: http://localhost:8081
+#      uri: http://localhost:8081
+      uri: https://bootcamp-ms-config-server-g3.azurewebsites.net
 server:
   port: 8083
 
