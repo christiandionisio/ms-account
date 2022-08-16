@@ -19,4 +19,5 @@ public class AccountDto {
   private String customerOwnerId;
   private String cardId;
   private LocalDateTime cardIdAssociateDate;
+  private String walletPhoneNumber;
 }
